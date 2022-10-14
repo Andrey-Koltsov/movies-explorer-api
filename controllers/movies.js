@@ -1,5 +1,6 @@
 const Movie = require('../models/Movie');
-const { CREATED_CODE } = require('../utils/constants');
+const { BAD_REQUESTS_MESSAGE, FORBIDDEN_MESSAGE, NOT_FOUND_MOVIE_MESSAGE } = require('../utils/constants');
+const { CREATED_CODE } = require('../utils/codes');
 const NotFoundError = require('../errors/NotFoundError');
 const BadRequestError = require('../errors/BadRequestError');
 const ForbiddenError = require('../errors/ForbiddenError');
@@ -18,6 +19,7 @@ const createMovie = async (req, res, next) => {
     const {
       country,
       director,
+      duration,
       year,
       description,
       image,
@@ -31,6 +33,7 @@ const createMovie = async (req, res, next) => {
     const card = await Movie.create({
       country,
       director,
+      duration,
       year,
       description,
       image,
@@ -45,7 +48,7 @@ const createMovie = async (req, res, next) => {
     return res.status(CREATED_CODE).send(card);
   } catch (err) {
     if (err.name === 'ValidationError') {
-      return next(new BadRequestError('Переданы некорректные данные'));
+      return next(new BadRequestError(BAD_REQUESTS_MESSAGE));
     }
     return next(err);
   }
@@ -61,12 +64,12 @@ const deleteMovie = async (req, res, next) => {
           return res.send(deletedMovie);
         }
       }
-      return next(new ForbiddenError('Нет прав на удаление'));
+      return next(new ForbiddenError(FORBIDDEN_MESSAGE));
     }
-    return next(new NotFoundError('Фильм не найден'));
+    return next(new NotFoundError(NOT_FOUND_MOVIE_MESSAGE));
   } catch (err) {
     if (err.name === 'CastError' || err.name === 'ValidationError') {
-      return next(new BadRequestError('Переданы некорректные данные'));
+      return next(new BadRequestError(BAD_REQUESTS_MESSAGE));
     }
     return next(err);
   }

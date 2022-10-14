@@ -6,7 +6,7 @@ const {
   createMovie,
   deleteMovie,
 } = require('../controllers/movies');
-const { URL_REGEXP } = require('../utils/constants');
+const { validateUrl } = require('../utils/validators');
 
 const movieRoutes = express.Router();
 
@@ -16,12 +16,13 @@ movieRoutes.post('/', celebrate({
   body: Joi.object().keys({
     country: Joi.string().required(),
     director: Joi.string().required(),
+    duration: Joi.number().integer().required(),
     year: Joi.string().required(),
     description: Joi.string().required(),
-    image: Joi.string().required().pattern(URL_REGEXP),
-    trailerLink: Joi.string().required().pattern(URL_REGEXP),
-    thumbnail: Joi.string().required().pattern(URL_REGEXP),
-    movieId: Joi.string().required(),
+    image: Joi.string().required().custom(validateUrl),
+    trailerLink: Joi.string().required().custom(validateUrl),
+    thumbnail: Joi.string().required().custom(validateUrl),
+    movieId: Joi.number().integer().required(),
     nameRU: Joi.string().required(),
     nameEN: Joi.string().required(),
   }),

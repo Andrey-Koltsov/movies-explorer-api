@@ -7,7 +7,14 @@ const cookieParser = require('cookie-parser');
 const { celebrate, Joi, errors } = require('celebrate');
 const helmet = require('helmet');
 
-const { PORT = 3000 } = process.env;
+const {
+  PORT = 3000,
+  NODE_ENV,
+  DB_ADDRESS,
+  CORS_ORIGIN,
+} = process.env;
+const { DB_ADDRESS_DEV, CORS_ORIGIN_DEV } = require('./utils/configures');
+
 const app = express();
 
 const auth = require('./middlewares/auth');
@@ -18,7 +25,7 @@ const limiter = require('./utils/limiter');
 const { login, createUser, signout } = require('./controllers/users');
 const router = require('./routes');
 
-mongoose.connect('mongodb://localhost:27017/moviesdb', {
+mongoose.connect(NODE_ENV === 'production' ? DB_ADDRESS : DB_ADDRESS_DEV, {
   useNewUrlParser: true,
   useUnifiedTopology: false,
 });
@@ -27,7 +34,7 @@ app.use(requestLogger);
 app.use(limiter);
 app.use(helmet());
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: NODE_ENV === 'production' ? CORS_ORIGIN : CORS_ORIGIN_DEV,
   credentials: true,
 }));
 app.use(express.json());
@@ -35,7 +42,7 @@ app.use(cookieParser());
 
 app.post('/signup', celebrate({
   body: Joi.object().keys({
-    name: Joi.string().min(2).max(30),
+    name: Joi.string().required().min(2).max(30),
     email: Joi.string().required().email(),
     password: Joi.string().required(),
   }),
