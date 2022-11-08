@@ -8,7 +8,7 @@ const { celebrate, Joi, errors } = require('celebrate');
 const helmet = require('helmet');
 
 const {
-  PORT = 3000,
+  PORT = 3001,
   NODE_ENV,
   DB_ADDRESS,
   CORS_ORIGIN,
